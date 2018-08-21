@@ -46,8 +46,20 @@ func Dial(uri string) (*Session, error) {
 }
 
 // C creates a new collection with the given name.
-func (s *Session) C(db, coll string) *Collection {
-	return &Collection{s.DB(db).C(coll)}
+func (s *Session) C(db, coll string) (*Collection, error) {
+	// Creating an index to speed up timeseries queries.
+	index := mgo.Index{
+		Key:        []string{typeField, timestampIndexField},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+	c := s.DB(db).C(coll)
+	if err := c.EnsureIndex(index); err != nil {
+		return nil, err
+	}
+	return &Collection{c}, nil
 }
 
 // TSRecord represents a value to be added to timeseries database.
@@ -56,8 +68,7 @@ type TSRecord struct {
 	Value     interface{} `bson:"value,omitempty"`
 }
 
-// Collection represents a timeseries collection in a mongo database. All time information
-// will be stored in UTC.
+// Collection represents a timeseries collection in a mongo database.
 type Collection struct {
 	*mgo.Collection
 }
@@ -76,11 +87,10 @@ func (c *Collection) TSUpsert(field string, val ...TSRecord) (TSUpsertResult, er
 	default:
 		bulk := c.Bulk()
 		for _, v := range val {
-			utc := hourUTC(v.Timestamp)
 			bulk.Upsert(
-				bson.M{timestampIndexField: utc, typeField: field},
+				bson.M{timestampIndexField: v.Timestamp, typeField: field},
 				bson.M{
-					timestampIndexField: utc,
+					timestampIndexField: v.Timestamp,
 					typeField:           field,
 					valueField:          v.Value,
 				},
@@ -94,16 +104,14 @@ func (c *Collection) TSUpsert(field string, val ...TSRecord) (TSUpsertResult, er
 // Interval fetches all records from timeseries mongo within the specified (closed) interval.
 // If no records are found, an empty slice is returned.
 func (c *Collection) Interval(field string, start time.Time, finish time.Time) ([]TSRecord, error) {
-	startUTC := start.In(time.UTC)
-	finishUTC := finish.In(time.UTC)
 	iter := c.Find(
 		bson.M{
-			timestampIndexField: bson.M{
-				"$gte": startUTC,
-				"$lte": finishUTC,
-			},
 			typeField: field,
-		}).Sort("-" + timestampIndexField).Iter()
+			timestampIndexField: bson.M{
+				"$gte": start,
+				"$lte": finish,
+			},
+		}).Iter()
 
 	var ret []TSRecord
 	var d TSRecord
@@ -127,9 +135,4 @@ func (c *Collection) Last(field string) (TSRecord, error) {
 		return TSRecord{}, err
 	}
 	return r, nil
-}
-
-func hourUTC(ts time.Time) time.Time {
-	tUTC := ts.In(time.UTC)
-	return time.Date(tUTC.Year(), tUTC.Month(), tUTC.Day(), tUTC.Hour(), 0, 0, 0, tUTC.Location())
 }

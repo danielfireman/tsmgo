@@ -4,12 +4,30 @@
 [[projects]]
   branch = "master"
   name = "github.com/globalsign/mgo"
-  packages = [".","bson","internal/json","internal/sasl","internal/scram"]
+  packages = [".","bson","dbtest","internal/json","internal/sasl","internal/scram"]
   revision = "46bcd340f9a57a05cb5c6cf9b0b61b1c43f6ae06"
+
+[[projects]]
+  name = "github.com/matryer/is"
+  packages = ["."]
+  revision = "5f0030ca4decdf2e702be47575d88eabf610593e"
+  version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/net"
+  packages = ["context"]
+  revision = "922f4815f713f213882e8ef45e0d315b164d705c"
+
+[[projects]]
+  branch = "v2"
+  name = "gopkg.in/tomb.v2"
+  packages = ["."]
+  revision = "d5d1b5820637886def9eef33e03a27a9f166942c"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "765c26db55235fb843f1f48799cd84a75b8b448ef6ad2dce30811ed2f8d9a5bc"
+  inputs-digest = "2d49c608130022498f188968fde5b81d34952cda9dd624c935c5dc3255a42db1"
   solver-name = "gps-cdcl"
   solver-version = 1
