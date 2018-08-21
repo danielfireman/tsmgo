@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	timestampIndexField = "timestamp_hour"
+	timestampIndexField = "timestamp"
 	typeField           = "type"
 	valueField          = "value"
 )
