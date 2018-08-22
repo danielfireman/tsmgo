@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	timestampIndexField = "timestamp"
+	timestampIndexField = "timestamp"  // Should match TSRecord.Timestamp bson field name.
 	typeField           = "type"
 	valueField          = "value"
 )
@@ -64,7 +64,7 @@ func (s *Session) C(db, coll string) (*Collection, error) {
 
 // TSRecord represents a value to be added to timeseries database.
 type TSRecord struct {
-	Timestamp time.Time   `bson:"timestamp_hour,omitempty"`
+	Timestamp time.Time   `bson:"timestamp,omitempty"`  // bson name should match timestampIndexField.
 	Value     interface{} `bson:"value,omitempty"`
 }
 
