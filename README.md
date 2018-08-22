@@ -2,7 +2,7 @@
 
 # tsmgo
 
-#golang library which makes easier to work with timeseries data in Mongo DB
+#golang library which makes intuitive to work with time-series data in Mongo DB.
 
 # Using tsmgo
 
