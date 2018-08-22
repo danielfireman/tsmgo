@@ -68,6 +68,19 @@ type TSRecord struct {
 	Value     interface{} `bson:"value,omitempty"`
 }
 
+// InverseChronologicalOrdering sorts TSRecords by timestamp (inverse )
+type InverseChronologicalOrdering []TSRecord
+
+func (s InverseChronologicalOrdering) Len() int {
+	return len(s)
+}
+func (s InverseChronologicalOrdering) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s InverseChronologicalOrdering) Less(i, j int) bool {
+	return s[i].Timestamp.After(s[j].Timestamp)
+}
+
 // Collection represents a timeseries collection in a mongo database.
 type Collection struct {
 	*mgo.Collection
