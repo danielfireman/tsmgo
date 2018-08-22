@@ -26,6 +26,8 @@ tsSession, err := tsmgo.Dial(mongoURL)
 c, _ := tsSession.C(dbName, colName)
 ```
 
+Where mgoSession is a [github.com/globalsign/mgo#Session](https://godoc.org/github.com/globalsign/mgo#Session).
+
 **Adding timeseries records**
 
 ```go
@@ -47,12 +49,9 @@ last, _ := tsmgoC.Last(myField)
 
 **Retrieving all itens inserted in the last 24 hours**
 ```go
-tsSession := tsmgo.NewSession(mgoSession)
 now := time.Now()
 items, _ := tsmgoC.Interval(myField, now.Add(-24*time.Hour), now)
 ```
-
-Where mgoSession is a [github.com/globalsign/mgo#Session](https://godoc.org/github.com/globalsign/mgo#Session).
 
 # Contributing
 
