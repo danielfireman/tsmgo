@@ -4,6 +4,8 @@
 
 #golang library which makes intuitive to work with time-series data in Mongo DB.
 
+The schema design is inspired by [this article](https://www.mongodb.com/blog/post/schema-design-for-time-series-data-in-mongodb).
+
 # Using tsmgo
 
 ```go
