@@ -2,9 +2,7 @@
 
 # tsmgo
 
-> Disclaimer: a lot in flux
-
-Golang library which makes easier to work with timeseries data in Mongo DB
+#golang library which makes easier to work with timeseries data in Mongo DB
 
 # Using tsmgo
 
