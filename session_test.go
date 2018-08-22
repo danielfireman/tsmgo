@@ -1,8 +1,10 @@
 package tsmgo
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"testing"
 	"time"
 
@@ -29,6 +31,32 @@ const (
 	colName = "col"
 	type1   = "type"
 )
+
+func ExampleCollection() {
+	mgoSession = mongoDB.Session()
+	defer mongoDB.Wipe()
+	defer mgoSession.Close()
+
+	s := NewSession(mgoSession)
+	defer s.Close()
+
+	myField := "myfield"
+	t1 := time.Now()
+	t2 := t1.Add(10 * time.Second)
+
+	tsmgoC, _ := s.C(dbName, colName)
+	tsmgoC.TSUpsert(myField, TSRecord{t1, 1}, TSRecord{t2, 2})
+
+	last, _ := tsmgoC.Last(myField)
+	fmt.Println(last.Value)
+
+	records, _ := tsmgoC.Interval(myField, t1, t2)
+	sort.Sort(InverseChronologicalOrdering(records))
+	fmt.Println(records[0].Value, records[1].Value)
+
+	// Output: 2
+	// 2 1
+}
 
 func TestCollection_TSUpsert_oneRecord(t *testing.T) {
 	mgoSession = mongoDB.Session()
