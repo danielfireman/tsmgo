@@ -8,23 +8,46 @@ Golang library which makes easier to work with timeseries data in Mongo DB
 
 # Using tsmgo
 
+```go
+import "github.com/danielfireman/tsmgo"
+```
+
+**New tsmgo.Session**
+
+```go
+tsSession := tsmgo.NewSession(mgoSession)
+c, _ := tsSession.C(dbName, colName)
+```
+
+or
+
+```go
+tsSession, err := tsmgo.Dial(mongoURL)
+c, _ := tsSession.C(dbName, colName)
+```
+
 **Adding timeseries records**
 
 ```go
-tsSession := NewSession(mgoSession)
-tsC, _ := tsSession.C(dbName, colName)
-tsC.TSUpsert(myField, TSRecord{time.Now(), 1})
+c.TSUpsert(myField, TSRecord{time.Now(), 1})
+```
+
+or
+
+```go
+t1 := time.Now()
+t2 := t1.Add(10 * time.Second)
+c.TSUpsert(myField, TSRecord{t1, 1}, TSRecord{t2, 2})
 ```
 
 **Retrieving last item inserted**
 ```go
-tsSession := NewSession(mgoSession)
 last, _ := tsmgoC.Last(myField)
 ```
 
 **Retrieving all itens inserted in the last 24 hours**
 ```go
-tsSession := NewSession(mgoSession)
+tsSession := tsmgo.NewSession(mgoSession)
 now := time.Now()
 items, _ := tsmgoC.Interval(myField, now.Add(-24*time.Hour), now)
 ```
