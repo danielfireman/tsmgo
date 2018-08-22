@@ -5,3 +5,13 @@
 > Disclaimer: a lot in flux
 
 Golang library which makes easier to work with timeseries data in Mongo DB
+
+# Contributing
+
+1. Install [dep](https://github.com/golang/dep/blob/master/docs/installation.md)
+1. `dep ensure`
+1. `go test -v`
+
+Either if you're fixing a bug or adding a new feature, please add a test to cover it.
+
+If all tests passes, please you're ready to send the PR.
