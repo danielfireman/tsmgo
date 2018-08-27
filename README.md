@@ -31,7 +31,7 @@ Where mgoSession is a [github.com/globalsign/mgo#Session](https://godoc.org/gith
 **Adding timeseries records**
 
 ```go
-c.TSUpsert(myField, TSRecord{time.Now(), 1})
+c.Upsert(myField, TSRecord{time.Now(), 1})
 ```
 
 or
@@ -39,7 +39,7 @@ or
 ```go
 t1 := time.Now()
 t2 := t1.Add(10 * time.Second)
-c.TSUpsert(myField, TSRecord{t1, 1}, TSRecord{t2, 2})
+c.Upsert(myField, TSRecord{t1, 1}, TSRecord{t2, 2})
 ```
 
 **Retrieving last item inserted**

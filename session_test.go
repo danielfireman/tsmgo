@@ -45,7 +45,7 @@ func ExampleCollection() {
 	t2 := t1.Add(10 * time.Second)
 
 	tsmgoC, _ := s.C(dbName, colName)
-	tsmgoC.TSUpsert(myField, TSRecord{t1, 1}, TSRecord{t2, 2})
+	tsmgoC.Upsert(myField, TSRecord{t1, 1}, TSRecord{t2, 2})
 
 	last, _ := tsmgoC.Last(myField)
 	fmt.Println(last.Value)
@@ -70,7 +70,7 @@ func TestCollection_TSUpsert_oneRecord(t *testing.T) {
 	tsmgoC, err := s.C(dbName, colName)
 	is.NoErr(err) // s.C(dbName, colName)
 	t1 := time.Now()
-	res1, err := tsmgoC.TSUpsert(type1, TSRecord{t1, 1})
+	res1, err := tsmgoC.Upsert(type1, TSRecord{t1, 1})
 	is.NoErr(err)              // tsmgoC.TSUpsert(type1, TSRecord{t1, 1}) error
 	is.Equal(1, res1.Matched)  // res1.Matched
 	is.Equal(0, res1.Modified) // res1.Modified
@@ -95,12 +95,12 @@ func TestCollection_TSUpsert_override(t *testing.T) {
 	tsmgoC, err := s.C(dbName, colName)
 	is.NoErr(err) // s.C(dbName, colName)
 	t1 := time.Now()
-	res1, err := tsmgoC.TSUpsert(type1, TSRecord{t1, 1})
+	res1, err := tsmgoC.Upsert(type1, TSRecord{t1, 1})
 	is.NoErr(err)              // tsmgoC.TSUpsert(type1, TSRecord{t1, 1}) error
 	is.Equal(1, res1.Matched)  // res1.Matched
 	is.Equal(0, res1.Modified) // res1.Modified
 
-	res2, err := tsmgoC.TSUpsert(type1, TSRecord{t1, 2})
+	res2, err := tsmgoC.Upsert(type1, TSRecord{t1, 2})
 	is.NoErr(err)              // tsmgoC.TSUpsert(type1, TSRecord{t1, 2}) error
 	is.Equal(1, res2.Matched)  // res2.Matched
 	is.Equal(1, res2.Modified) // res2.Modified
@@ -126,13 +126,13 @@ func TestCollection_TSUpsert_multipleRecords(t *testing.T) {
 	is.NoErr(err) // s.C(dbName, colName)
 	t1 := time.Now()
 	t2 := t1.Add(10 * time.Second)
-	res1, err := tsmgoC.TSUpsert(type1, TSRecord{t1, 1}, TSRecord{t2, 2})
+	res1, err := tsmgoC.Upsert(type1, TSRecord{t1, 1}, TSRecord{t2, 2})
 	is.NoErr(err)              // tsmgoC.TSUpsert(type1, TSRecord{t1, 1}, TSRecord{t2, 2}) error
 	is.Equal(2, res1.Matched)  // res1.Matched
 	is.Equal(0, res1.Modified) // res1.Modified
 
 	type2 := "type2"
-	res2, err := tsmgoC.TSUpsert(type2, TSRecord{t1, 3})
+	res2, err := tsmgoC.Upsert(type2, TSRecord{t1, 3})
 	is.NoErr(err)              // tsmgoC.TSUpsert(type1, TSRecord{t1, 1}, TSRecord{t2, 2}) error
 	is.Equal(1, res2.Matched)  // res2.Matched
 	is.Equal(0, res2.Modified) // res2.Modified
@@ -167,7 +167,7 @@ func TestCollection_TSLast(t *testing.T) {
 	is.NoErr(err) // s.C(dbName, colName)
 	t1 := time.Now()
 	t2 := t1.Add(10 * time.Second)
-	res1, err := tsmgoC.TSUpsert(type1, TSRecord{t1, 1}, TSRecord{t2, 2})
+	res1, err := tsmgoC.Upsert(type1, TSRecord{t1, 1}, TSRecord{t2, 2})
 	is.NoErr(err)              // tsmgoC.TSUpsert(type1, TSRecord{t1, 1}, TSRecord{t2, 2}) error
 	is.Equal(2, res1.Matched)  // res1.Matched
 	is.Equal(0, res1.Modified) // res1.Modified
@@ -191,7 +191,7 @@ func TestCollection_Interval(t *testing.T) {
 	is.NoErr(err) // s.C(dbName, colName)
 	t1 := time.Now()
 	t2 := t1.Add(10 * time.Second)
-	res1, err := tsmgoC.TSUpsert(type1, TSRecord{t1, 1}, TSRecord{t2, 2})
+	res1, err := tsmgoC.Upsert(type1, TSRecord{t1, 1}, TSRecord{t2, 2})
 	is.NoErr(err)              // tsmgoC.TSUpsert(type1, TSRecord{t1, 1}, TSRecord{t2, 2}) error
 	is.Equal(2, res1.Matched)  // res1.Matched
 	is.Equal(0, res1.Modified) // res1.Modified

@@ -16,13 +16,19 @@ const (
 
 // Session represents a connection to a mongo timeseries collection.
 type Session struct {
-	*mgo.Session
+	mgoSession *mgo.Session
 }
 
-// TSCopy works just like New, but preserves the database and any authentication
+// Copy works just like New, but preserves the database and any authentication
 // information from the original session.
-func (s *Session) TSCopy() *Session {
-	return NewSession(s.Copy())
+func (s *Session) Copy() *Session {
+	return NewSession(s.mgoSession.Copy())
+}
+
+// Close terminates the session.  It's a runtime error to use a session
+// after it has been closed.
+func (s *Session) Close() {
+	s.mgoSession.Close()
 }
 
 // NewSession creates a new Session instance based on a copy of the passed-in instance. This returned allows
@@ -55,7 +61,7 @@ func (s *Session) C(db, coll string) (*Collection, error) {
 		Background: true,
 		Sparse:     true,
 	}
-	c := s.DB(db).C(coll)
+	c := s.mgoSession.DB(db).C(coll)
 	if err := c.EnsureIndex(index); err != nil {
 		return nil, err
 	}
@@ -83,22 +89,22 @@ func (s InverseChronologicalOrdering) Less(i, j int) bool {
 
 // Collection represents a timeseries collection in a mongo database.
 type Collection struct {
-	*mgo.Collection
+	mgoCollection *mgo.Collection
 }
 
-// TSUpsertResult holds the results for a timeseries upsert operation.
-type TSUpsertResult struct {
+// UpsertResult holds the results for a timeseries upsert operation.
+type UpsertResult struct {
 	Matched  int
 	Modified int
 }
 
-// TSUpsert bulk-inserts the given data into the timeseries database overriding the data if necessary.
-func (c *Collection) TSUpsert(field string, val ...TSRecord) (TSUpsertResult, error) {
+// Upsert bulk-inserts the given data into the timeseries database overriding the data if necessary.
+func (c *Collection) Upsert(field string, val ...TSRecord) (UpsertResult, error) {
 	switch len(val) {
 	case 0:
-		return TSUpsertResult{}, nil
+		return UpsertResult{}, nil
 	default:
-		bulk := c.Bulk()
+		bulk := c.mgoCollection.Bulk()
 		for _, v := range val {
 			bulk.Upsert(
 				bson.M{timestampIndexField: v.Timestamp, typeField: field},
@@ -110,14 +116,14 @@ func (c *Collection) TSUpsert(field string, val ...TSRecord) (TSUpsertResult, er
 			)
 		}
 		br, err := bulk.Run()
-		return TSUpsertResult{br.Matched, br.Modified}, err
+		return UpsertResult{br.Matched, br.Modified}, err
 	}
 }
 
 // Interval fetches all records from timeseries mongo within the specified (closed) interval.
 // If no records are found, an empty slice is returned.
 func (c *Collection) Interval(field string, start time.Time, finish time.Time) ([]TSRecord, error) {
-	iter := c.Find(
+	iter := c.mgoCollection.Find(
 		bson.M{
 			typeField: field,
 			timestampIndexField: bson.M{
@@ -143,7 +149,7 @@ func (c *Collection) Interval(field string, start time.Time, finish time.Time) (
 // Last returns the last element in the timeseries, if any.
 func (c *Collection) Last(field string) (TSRecord, error) {
 	var r TSRecord
-	err := c.Find(bson.M{typeField: field}).Sort("-" + timestampIndexField).One(&r)
+	err := c.mgoCollection.Find(bson.M{typeField: field}).Sort("-" + timestampIndexField).One(&r)
 	if err != nil {
 		return TSRecord{}, err
 	}
